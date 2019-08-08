@@ -103,6 +103,22 @@ public class EwsSSLProtocolSocketFactory extends SSLConnectionSocketFactory {
     this.sslcontext = context;
   }
 
+  /**
+   * Create and configure SSL protocol socket factory using the specified protocols, cipher suites and default hostname
+   * verifier. {@link EwsSSLProtocolSocketFactory#DEFAULT_HOSTNAME_VERIFIER}
+   *
+   * @param context               SSL context
+   * @param supportedProtocols    The SSL protocols that may be used
+   * @param supportedCipherSuites The SSL encryption algorithms that may be used
+   * @param hostnameVerifier      hostname verifier
+   */
+  public EwsSSLProtocolSocketFactory(
+          SSLContext context, String[] supportedProtocols, String[] supportedCipherSuites,
+          HostnameVerifier hostnameVerifier
+  ) {
+    super(context, supportedProtocols, supportedCipherSuites, hostnameVerifier);
+    this.sslcontext = context;
+  }
 
   /**
    * Create and configure SSL protocol socket factory using default hostname verifier.
@@ -120,7 +136,7 @@ public class EwsSSLProtocolSocketFactory extends SSLConnectionSocketFactory {
   /**
    * Create and configure SSL protocol socket factory using trust manager and hostname verifier.
    *
-   * @param trustManager trust manager
+   * @param trustManager     trust manager
    * @param hostnameVerifier hostname verifier
    * @return socket factory for SSL protocol
    * @throws GeneralSecurityException on security error
@@ -128,8 +144,40 @@ public class EwsSSLProtocolSocketFactory extends SSLConnectionSocketFactory {
   public static EwsSSLProtocolSocketFactory build(
     TrustManager trustManager, HostnameVerifier hostnameVerifier
   ) throws GeneralSecurityException {
+    return build(trustManager, null, null, hostnameVerifier);
+  }
+
+  /**
+   * Create and configure SSL protocol socket factory using trust manager and hostname verifier.
+   *
+   * @param trustManager          Trust manager
+   * @param supportedProtocols    The SSL protocols that may be used
+   * @param supportedCipherSuites The SSL encryption algorithms that may be used
+   * @return socket factory for SSL protocol
+   * @throws GeneralSecurityException on security error
+   */
+  public static EwsSSLProtocolSocketFactory build(
+          TrustManager trustManager, String[] supportedProtocols, String[] supportedCipherSuites
+  ) throws GeneralSecurityException {
+    return build(trustManager, supportedProtocols, supportedCipherSuites, DEFAULT_HOSTNAME_VERIFIER);
+  }
+
+  /**
+   * Create and configure SSL protocol socket factory using trust manager and hostname verifier.
+   *
+   * @param trustManager          Trust manager
+   * @param supportedProtocols    The SSL protocols that may be used
+   * @param supportedCipherSuites The SSL encryption algorithms that may be used
+   * @param hostnameVerifier      Hostname verifier
+   * @return socket factory for SSL protocol
+   * @throws GeneralSecurityException on security error
+   */
+  public static EwsSSLProtocolSocketFactory build(
+          TrustManager trustManager, String[] supportedProtocols, String[] supportedCipherSuites,
+          HostnameVerifier hostnameVerifier
+  ) throws GeneralSecurityException {
     SSLContext sslContext = createSslContext(trustManager);
-    return new EwsSSLProtocolSocketFactory(sslContext, hostnameVerifier);
+    return new EwsSSLProtocolSocketFactory(sslContext, supportedProtocols, supportedCipherSuites, hostnameVerifier);
   }
 
   /**

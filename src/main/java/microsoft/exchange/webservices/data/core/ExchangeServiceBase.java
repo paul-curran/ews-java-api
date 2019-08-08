@@ -154,6 +154,10 @@ public abstract class ExchangeServiceBase implements Closeable {
   
   private int maximumPoolingConnections = 10;
 
+  private String[] supportedProtocols = null;
+
+  private String[] supportedCipherSuites = null;
+
 
 //  protected HttpClientWebRequest request = null;
 
@@ -193,6 +197,8 @@ public abstract class ExchangeServiceBase implements Closeable {
     this.userAgent = service.getUserAgent();
     this.acceptGzipEncoding = service.getAcceptGzipEncoding();
     this.httpHeaders = service.getHttpHeaders();
+    this.supportedProtocols = service.getSupportedProtocols();
+    this.supportedCipherSuites = service.getSupportedCipherSuites();
   }
 
   private void initializeHttpClient() {
@@ -242,9 +248,12 @@ public abstract class ExchangeServiceBase implements Closeable {
    */
   protected Registry<ConnectionSocketFactory> createConnectionSocketFactoryRegistry() {
     try {
+      EwsSSLProtocolSocketFactory httpsSocketFactory =
+              EwsSSLProtocolSocketFactory.build(null, supportedProtocols, supportedCipherSuites);
+
       return RegistryBuilder.<ConnectionSocketFactory>create()
         .register(EWSConstants.HTTP_SCHEME, new PlainConnectionSocketFactory())
-        .register(EWSConstants.HTTPS_SCHEME, EwsSSLProtocolSocketFactory.build(null))
+        .register(EWSConstants.HTTPS_SCHEME, httpsSocketFactory)
         .build();
     } catch (GeneralSecurityException e) {
       throw new RuntimeException(
@@ -892,5 +901,39 @@ public abstract class ExchangeServiceBase implements Closeable {
 
   public int getMaximumPoolingConnections() {
     return maximumPoolingConnections;
+  }
+
+  /**
+   * Sets the supported SSL protocols and cipher suites to be used by sockets created by the factory.<br>
+   * (NOTE: since objects need to be regenerated as part of this method to take into account the new settings, it makes
+   * most sense to set the protocols and cipher suites in a single call rather than regenerate objects twice)
+   *
+   * @param supportedProtocols    The SSL protocols that may be used
+   * @param supportedCipherSuites The SSL encryption algorithms that may be used
+   */
+  public void setSupportedProtocolsAndCipherSuites(String[] supportedProtocols, String[] supportedCipherSuites) {
+    this.supportedProtocols = supportedProtocols;
+    this.supportedCipherSuites = supportedCipherSuites;
+    initializeHttpClient();
+    initializeHttpPoolingClient();
+    initializeHttpContext();
+  }
+
+  /**
+   * Gets the SSL protocols that may be used by sockets created by the factory.
+   *
+   * @return Array of SSL protocol names supported by the sockets created by the factory.
+   */
+  public String[] getSupportedProtocols() {
+    return supportedProtocols;
+  }
+
+  /**
+   * Gets the SSL cipher suites that may be used by sockets created by the factory.
+   *
+   * @return Array of SSL cipher suite names supported by the sockets created by the factory.
+   */
+  public String[] getSupportedCipherSuites() {
+    return supportedCipherSuites;
   }
 }

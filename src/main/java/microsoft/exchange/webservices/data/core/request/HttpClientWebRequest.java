@@ -133,7 +133,7 @@ public class HttpClientWebRequest extends HttpWebRequest {
     // Add proxy credential if necessary.
     WebProxy proxy = getProxy();
     if (proxy != null) {
-      HttpHost proxyHost = new HttpHost(proxy.getHost(), proxy.getPort());
+      HttpHost proxyHost = new HttpHost(proxy.getHost(), proxy.getPort(), proxy.getScheme());
       requestConfigBuilder.setProxy(proxyHost);
 
       if (proxy.hasCredentials()) {

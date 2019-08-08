@@ -31,55 +31,79 @@ import microsoft.exchange.webservices.data.credential.WebProxyCredentials;
  */
 public class WebProxy {
 
+  private static final int DEFAULT_PORT = 80;
+
   private String host;
 
   private int port;
 
+  private String scheme;
+
   private WebProxyCredentials credentials;
 
+  /**
+   * Initializes a new instance to use specified proxy that uses {@link DEFAULT_PORT}.
+   *
+   * @param host proxy host.
+   */
+  public WebProxy(String host) {
+    this(host, DEFAULT_PORT, null /* scheme */, null /* credentials */);
+  }
 
   /**
-   * Initializes a new instance to use specified proxy details.
+   * Initializes a new instance to use specified proxy details, using the default scheme.
    *
    * @param host proxy host.
    * @param port proxy port.
    */
   public WebProxy(String host, int port) {
-    this.host = host;
-    this.port = port;
-  }
-
-  /**
-   * Initializes a new instance to use specified proxy with default port 80.
-   *
-   * @param host proxy host.
-   */
-  public WebProxy(String host) {
-    this.host = host;
-    this.port = 80;
-  }
-
-  /**
-   * Initializes a new instance to use specified proxy with default port 80.
-   *
-   * @param host proxy host.
-   * @param credentials the credential to use for the proxy.
-   */
-  public WebProxy(String host, WebProxyCredentials credentials) {
-    this.host = host;
-    this.credentials = credentials;
+    this(host, port, null /* scheme */, null /* credentials */);
   }
 
   /**
    * Initializes a new instance to use specified proxy details.
    *
-   * @param host proxy host.
-   * @param port proxy port.
+   * @param host    proxy host.
+   * @param port    proxy port.
+   * @param scheme  proxy scheme ("http"/"https").
+   */
+  public WebProxy(String host, int port, String scheme) {
+    this(host, port, scheme, null /* credentials */);
+  }
+
+  /**
+   * Initializes a new instance to use specified proxy that uses {@link DEFAULT_PORT}.
+   *
+   * @param host        proxy host.
+   * @param credentials the credential to use for the proxy.
+   */
+  public WebProxy(String host, WebProxyCredentials credentials) {
+    this(host, DEFAULT_PORT, null /* scheme */, credentials);
+  }
+
+  /**
+   * Initializes a new instance to use specified proxy details.
+   *
+   * @param host        proxy host.
+   * @param port        proxy port.
    * @param credentials the credential to use for the proxy.
    */
   public WebProxy(String host, int port, WebProxyCredentials credentials) {
+    this(host, port, null /* scheme */, credentials);
+  }
+
+  /**
+   * Initializes a new instance to use specified proxy details.
+   *
+   * @param host        proxy host.
+   * @param port        proxy port.
+   * @param scheme      proxy scheme ("http"/"https").
+   * @param credentials the credential to use for the proxy.
+   */
+  public WebProxy(String host, int port, String scheme, WebProxyCredentials credentials) {
     this.host = host;
     this.port = port;
+    this.scheme = scheme;
     this.credentials = credentials;
   }
 
@@ -99,6 +123,15 @@ public class WebProxy {
    */
   public int getPort() {
     return this.port;
+  }
+
+  /**
+   * Gets the Proxy Scheme.
+   *
+   * @return the scheme
+   */
+  public String getScheme() {
+    return scheme;
   }
 
   public boolean hasCredentials() {
